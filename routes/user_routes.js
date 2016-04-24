@@ -5,11 +5,24 @@ var userRouter = express.Router();
 module.exports = userRouter;
 
 userRouter.route('/admin/users')
-  // returns all users
+  // returns all users for admin
   .get(function(req, res) {
     User.find({}, function(err, data) {
       if(err) return res.send(err);
       res.status(200).json(data);
+    });
+  });
+
+userRouter.route('/admin/users/:username')
+  // deletes a specific user for admin
+  .delete(function(req, res) {
+    User.findOne({ 'username': req.params.username }, function(err, user) {
+      if(err) return res.send(err);
+      if(!user) return res.status(404).json({ msg: 'User does not exist' });
+      User.remove({ 'username': req.params.username }, function(err) {
+        if(err) return res.send(err);
+        res.status(200).json({ msg: 'Success' });
+      });
     });
   });
 
@@ -18,7 +31,7 @@ userRouter.route('/users/signup')
   .post(function(req, res) {
     User.findOne({ 'username': req.body.username }, function(err, data) {
       if(err) return res.send(err);
-      if(data) return res.status(422).json({ msg: 'user already exists' });
+      if(data) return res.status(422).json({ msg: 'User already exists' });
       var user = new User();
       user.username = req.body.username;
       user.authentication.email = req.body.email;
@@ -42,8 +55,8 @@ userRouter.route('/users/:username')
   .put(function(req, res) {
     User.findOne({ 'username': req.params.username }, function(err, user) {
       if(err) return res.send(err);
-      if(!user) return res.status(404).json({ msg: 'no such user' });
-      if(user.username === req.body.username && user.authentication.email === req.body.email) return res.status(422).json({ msg: 'no new info' });
+      if(!user) return res.status(404).json({ msg: 'No such user' });
+      if(user.username === req.body.username && user.authentication.email === req.body.email) return res.status(422).json({ msg: 'No new info' });
       if(user.username !== req.body.username) user.username = req.body.username;
       if(user.authentication.email !== req.body.email) user.authentication.email = req.body.email;
       // if(user.authentication.password !== req.body.password) user.authentication.password = req.body.password;
@@ -57,10 +70,10 @@ userRouter.route('/users/:username')
   .delete(function(req, res) {
     User.findOne({ 'username': req.params.username }, function(err, user) {
       if(err) return res.send(err);
-      if(!user) return res.status(404).json({ msg: 'you cannot delete someone that is not there' });
+      if(!user) return res.status(404).json({ msg: 'You cannot delete someone that is not there' });
       User.remove({ 'username': req.params.username }, function(err) {
-        if(err) res.send(err);
-        res.status(200).json({ msg: 'success' });
+        if(err) return res.send(err);
+        res.status(200).json({ msg: 'Success' });
       });
     });
   });
