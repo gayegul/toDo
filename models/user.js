@@ -3,22 +3,36 @@ var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt');
 
 var UserSchema = new Schema({
-  username: {type: String, required: true, unique: true},
-  authentication: {
-    email: {type: String, unique: true},
-    password: String
-  }
+  // name: {type: String, required: true, unique: true},
+  // username will be unique
+  username: { type: String, required: true, index: { unique: true }},
+  email: { type: String, required: true, index: { unique: true }},
+  // password will not be returned by queries unless explicitly asked
+  password: { type: String, required: true, select: false }
 });
 
-//hashes the password
-UserSchema.methods.hashPassword = function(password) {
-  var hash = this.authentication.password = bcrypt.hashSync(password, 8);
-  return hash;
-};
+// hashing the password before saving it
+UserSchema.pre('save', function(next) {
+  var user = this;
+  // if password is unchanged, continue
+  if(!user.isModified('password')) return next();
 
-//compares the password once it is hashed
-UserSchema.methods.compareHash = function(password) {
-  return bcrypt.compareSync(password, this.authentication.password);
+  var salt = "$2a$10$PUx1NCWC3m78bZcAsqiHXO";
+
+  // if password is changed or user is new, hash the password
+  bcrypt.hash(user.password, salt, function(err, hash) {
+    console.log('in done: ' + err);
+    if(err) return next(new Error(err));
+    // make user password the hashed version
+    user.password = hash;
+    next();
+  });
+});
+
+// method to compare password with the db hashed version
+UserSchema.methods.comparePassword = function(password) {
+  var user = this;
+  return bcrypt.compareSync(password, user.password);
 };
 
 module.exports = mongoose.model('User', UserSchema);
