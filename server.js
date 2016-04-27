@@ -3,6 +3,8 @@ var app = express();
 var userRouter = require('./routes/user_routes');
 var itemRouter = require('./routes/item_routes');
 var authRouter = require('./routes/auth_routes');
+var adminRouter = require('./routes/admin_routes');
+
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
@@ -18,6 +20,7 @@ app.get('/', function(req, res) {
 });
 
 app.use('/api', authRouter);
+app.use('/api', adminRouter);
 app.use('/api', userRouter);
 app.use('/api', itemRouter);
 
