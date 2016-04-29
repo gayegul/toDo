@@ -9,6 +9,11 @@ All routes start with `/api`
 POST  
 creates a user
 
+`/users/signin`  
+
+POST  
+authenticates user and gives back a token
+
 `/users/:username`  
 
 GET  
