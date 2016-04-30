@@ -3,8 +3,7 @@ var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt');
 
 var UserSchema = new Schema({
-  // name: {type: String, required: true, unique: true},
-  // username will be unique
+  // username and email will be unique
   username: { type: String, required: true, index: { unique: true }},
   email: { type: String, required: true, index: { unique: true }},
   // password will not be returned by queries unless explicitly asked
@@ -21,7 +20,6 @@ UserSchema.pre('save', function(next) {
 
   // if password is changed or user is new, hash the password
   bcrypt.hash(user.password, salt, function(err, hash) {
-    console.log('in done: ' + err);
     if(err) return next(new Error(err));
     // make user password the hashed version
     user.password = hash;
