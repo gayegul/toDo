@@ -3,12 +3,12 @@ var Item = require('../models/item');
 var User = require('../models/user');
 var jwt = require('jsonwebtoken');
 var superSecret = 'ilovemakeupnotsosecretbutyeah';
-var itemRoutes = express.Router();
+var itemRouter = express.Router();
 
-module.exports = itemRoutes;
+module.exports = itemRouter;
 
 // middleware to verify a token
-itemRoutes.use(function(req, res, next) {
+itemRouter.use(function(req, res, next) {
   // check header or url params or post params for token
   var token = req.body.token || req.query.token || req.headers['token'];
   // decode token
@@ -35,7 +35,7 @@ itemRoutes.use(function(req, res, next) {
   }
 });
 
-itemRoutes.route('/users/:username/items')
+itemRouter.route('/users/:username/items')
   // returns all items for a given user
   .get(function(req, res) {
     Item.find({}, function(err, data) {
@@ -65,7 +65,7 @@ itemRoutes.route('/users/:username/items')
     });
   });
 
-itemRoutes.route('/users/:username/items/:itemname')
+itemRouter.route('/users/:username/items/:itemname')
   // returns specific item
   .get(function(req, res) {
     Item.findOne({ 'itemname': req.params.itemname }, function(err, item) {
